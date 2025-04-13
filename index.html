@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathshala-X</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Pathshala-X</h2>
+        <div class="nav-item active">Dashboard</div>
+        <div class="nav-item">Lessons</div>
+        <div class="nav-item">Q&A</div>
+        <div class="nav-item">Tools</div>
+      </div>
+    
+      <div class="main">
+        <h1>Learning Dashboard</h1>
+    
+        <div class="card">
+          <h3>Continue Your Learning</h3>
+          <div class="progress-bar">
+            <div class="progress"></div>
+          </div>
+        </div>
+    
+        <div class="card">
+          <h3>Daily Goal</h3>
+          <p>16 minutes completed</p>
+          <div class="progress-bar">
+            <div class="progress" style="width: 80%;"></div>
+          </div>
+        </div>
+    
+        <div class="subject-section" id="subjectSection">
+            <h2>Your Subjects</h2>
+            <div id="subjectsList" class="subject-list">
+              <button class="subject-card" onclick="goToAIPage">Math</button>
+              <button class="subject-card" herf="ai.html">Physics</button>
+              <button class="subject-card" onclick="goToAIPage">Chemistry</button>
+              <button class="subject-card" onclick="goToAIPage">Biology</button>
+              <button class="subject-card add-own-btn" id="addCustomSubject">+ Add Your Own</button>
+            </div>
+          </div>
+         
+    
+      </div>
+      <script>
+            const subjectsList = document.getElementById("subjectsList");
+    const addCustomBtn = document.getElementById("addCustomSubject");
+
+    const predefinedSubjects = ["Math", "Physics", "Chemistry", "Biology"];
+    const storedSubjects = JSON.parse(localStorage.getItem("subjects")) || predefinedSubjects;
+
+    function saveSubjects(subjects) {
+      localStorage.setItem("subjects", JSON.stringify(subjects));
+    }
+
+    function createSubjectCard(subjectName) {
+      const subjectBtn = document.createElement("button");
+      subjectBtn.className = "subject-card";
+      subjectBtn.textContent = subjectName;
+
+      // Add link
+      function goToAIPage() {
+        window.location.href = 'ai.html';
+      }
+      subjectBtn.onclick = () => {
+        const page = subjectName.toLowerCase().replace(/\s+/g, '') + "ai.html";
+        window.location.href = 'ai.html';
+      };
+
+      // Add remove button (only for custom subjects)
+      if (!predefinedSubjects.includes(subjectName)) {
+        const removeBtn = document.createElement("span");
+        removeBtn.textContent = "🗑️";
+        removeBtn.className = "remove-btn";
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          subjectsList.removeChild(subjectBtn);
+          const updatedSubjects = JSON.parse(localStorage.getItem("subjects")) || [];
+          const newSubjects = updatedSubjects.filter(sub => sub !== subjectName);
+          saveSubjects(newSubjects);
+        };
+        subjectBtn.appendChild(removeBtn);
+      }
+
+      subjectsList.insertBefore(subjectBtn, addCustomBtn);
+    }
+
+    // Load stored subjects
+    storedSubjects.forEach(createSubjectCard);
+
+    // Add custom subject
+    addCustomBtn.addEventListener("click", () => {
+      const subjectName = prompt("Enter the name of your new subject:");
+      if (subjectName && subjectName.trim() !== "") {
+        const formatted = subjectName.trim();
+        const currentSubjects = JSON.parse(localStorage.getItem("subjects")) || [];
+        if (!currentSubjects.includes(formatted)) {
+          createSubjectCard(formatted);
+          saveSubjects([...currentSubjects, formatted]);
+        } else {
+          alert("Subject already exists!");
+        }
+      }
+    });
+      </script>
+</body>
+</html>

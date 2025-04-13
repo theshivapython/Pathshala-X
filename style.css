@@ -1,0 +1,217 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    background: #f0f4f8;
+    overflow: hidden;
+    animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.sidebar {
+    width: 240px;
+    background-color: #1e293b;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    font-size: 22px;
+    margin-bottom: 30px;
+    color: #38bdf8;
+}
+
+.nav-item {
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.nav-item:hover, .nav-item.active {
+    background-color: #334155;
+}
+
+.main {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.main h1 {
+    font-size: 26px;
+    margin-bottom: 20px;
+    color: #0f172a;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    animation: slideUp 0.5s ease-in;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.progress-bar {
+    height: 8px;
+    width: 100%;
+    background-color: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress {
+    height: 100%;
+    background-color: #38bdf8;
+    width: 60%;
+    border-radius: 10px;
+    animation: loadProgress 1.5s ease-out forwards;
+}
+
+@keyframes loadProgress {
+    from { width: 0; }
+    to { width: 55%; }
+}
+
+.subject-section {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #f0f4ff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  .subject-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .subject-card {
+    background-color: #4f88ff;
+    color: white;
+    padding: 0.7rem 1rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 150px;
+  }
+  
+  .subject-card:hover {
+    background-color: #2f6fff;
+    transform: scale(1.05);
+  }
+  
+  .add-own-btn {
+    background-color: #00c49a;
+  }
+  
+  .add-own-btn:hover {
+    background-color: #009b7a;
+  }
+  
+  .remove-btn {
+    margin-left: 10px;
+    color: rgb(247, 8, 8);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  :root {
+    --bg-color: #ffffff;
+    --text-color: #222;
+    --container-bg: #fff;
+    --button-bg: #3f51b5;
+    --box-bg: #f1f5ff;
+  }
+  
+  body.dark {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --container-bg: #1e1e1e;
+    --button-bg: #bb86fc;
+    --box-bg: #292929;
+  }
+  
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+  }
+  
+  .container {
+    background-color: var(--container-bg);
+  }
+  
+  #output-box {
+    background-color: var(--box-bg);
+    border-left: 5px solid var(--button-bg);
+  }
+  
+  button {
+    background-color: var(--button-bg);
+  }
+  
+  .top-bar {
+    width: 100%;
+    max-width: 750px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 10px;
+  }
+  
+  #toggle-mode {
+    width: auto;
+    padding: 10px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+  }
+  
+  /* Loader / Avatar Animation */
+  .loader {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .loader img {
+    width: 80px;
+    height: 80px;
+    animation: pulse 1.2s infinite ease-in-out;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+  }
+  

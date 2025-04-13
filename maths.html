@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Math Q&A - PATHSHALA-X</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      flex: 1;
+      min-width: 300px;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .box:hover {
+      transform: scale(1.02);
+    }
+
+    h2 {
+      color: #2f6fff;
+    }
+
+    .question {
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .answer {
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    ul {
+      padding-left: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center; color:#333;">Math Questions - Explained Simply</h1>
+  <div class="container">
+
+    <!-- Box 1: Question and direct Answer -->
+    <div class="box">
+      <h2>Q&A Format</h2>
+      <div class="question">What is the Pythagorean Theorem?</div>
+      <div class="answer">It is a formula used in right-angled triangles. It states that: <br><strong>a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></strong></div>
+
+      <div class="question">What is the value of Pi (π)?</div>
+      <div class="answer">The value of π (Pi) is approximately 3.14159, and it's used in circles.</div>
+    </div>
+
+    <!-- Box 2: Explanation in Easy Format -->
+    <div class="box">
+      <h2>Explanation in Simple Points</h2>
+      <div class="question">Pythagorean Theorem</div>
+      <ul>
+        <li>Used only in right-angled triangles.</li>
+        <li>The two shorter sides are 'a' and 'b'.</li>
+        <li>The longest side (opposite the right angle) is 'c'.</li>
+        <li>Formula: a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></li>
+        <li>Helps to find the length of a missing side.</li>
+      </ul>
+
+      <div class="question">Pi (π)</div>
+      <ul>
+        <li>π is used in formulas involving circles.</li>
+        <li>π = 3.14159 (commonly rounded to 3.14).</li>
+        <li>Circumference = 2πr</li>
+        <li>Area of Circle = πr<sup>2</sup></li>
+        <li>π is an irrational number (goes on forever).</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

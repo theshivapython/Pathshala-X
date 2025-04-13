@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pathshala-X | AI Answer Explainer</title>
+  <link rel="stylesheet" href="ai.css">
+  
+</head>
+<body>
+    <div class="top-bar">
+        <button id="toggle-mode">🌙 Dark Mode</button>
+    </div>
+
+      
+      
+  <div class="container">
+    <h1>Pathshala-X</h1>
+    <p class="subheading">Enter a question and its answer. Get a simplified explanation!</p>
+
+    <textarea id="question" placeholder="Enter your question..."></textarea>
+    <textarea id="answer" placeholder="Enter your answer..."></textarea>
+
+    <button onclick="generateExplanation()">Explain Answer Simply</button>
+
+    <div id="output-box">
+      <h3>Simplified Explanation:</h3>
+      <p id="explanation-text">Your simplified explanation will appear here...</p>
+    </div>
+    <div id="typing" style="display: none;" class="typing-animation">
+      <img src="ai-avatar.gif" alt="AI Typing..." width="50" height="50" />
+      <span>AI is thinking...</span>
+    </div>
+    
+  </div>
+
+  <script src="ai.js"></script>
+  
+</body>
+</html>
