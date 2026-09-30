@@ -49,7 +49,7 @@ function readJsonBody(req) {
     const chunks = [];
     req.on('data', (chunk) => {
       size += chunk.length;
-      if (size > 1_000_000) {
+      if (size > 6_000_000) {
         reject(new Error('Body too large'));
         req.destroy();
         return;

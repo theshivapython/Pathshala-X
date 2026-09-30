@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .filter((e) => e.lesson)
       .map((e) => ({ ts: e.ts, icon: '✅', text: `Completed <strong>${esc(e.lesson.title)}</strong>`, href: `lessons.html?lesson=${encodeURIComponent(e.lesson.id)}` }));
     PX.store.get('history', []).forEach((h) => {
-      events.push({ ts: h.ts, icon: '💬', text: `Asked <strong>${esc(h.question)}</strong>`, href: 'ai.html' });
+      events.push({ ts: h.ts, icon: '💬', text: `Asked <strong>${esc(h.question || 'a question about an attached file')}</strong>`, href: 'ai.html' });
     });
     events.sort((a, b) => b.ts - a.ts);
 
