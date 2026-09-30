@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     PX.store.get('history', []).forEach((item) => {
-      events.push({ ts: item.ts, icon: '💬', text: `Asked: <strong>${esc(item.question)}</strong>`, href: 'ai.html' });
+      events.push({ ts: item.ts, icon: '💬', text: `Asked: <strong>${esc(item.question || 'a question about an attached file')}</strong>`, href: 'ai.html' });
     });
     events.sort((a, b) => b.ts - a.ts);
 

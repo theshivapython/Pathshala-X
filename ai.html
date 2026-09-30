@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Ask a question, add an answer, and get a simple step-by-step explanation from the Pathshala-X AI tutor.">
+  <meta name="description" content="Ask a question in any language, attach a photo or PDF, and get a simple explanation you can listen to or turn into a video.">
   <title>Ask AI · Pathshala-X</title>
   <script src="js/boot.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,14 +20,14 @@
           <div>
             <div class="eyebrow">AI tutor</div>
             <h1>Explain it simply</h1>
-            <p>Type a question — and optionally the answer you were given — and get a clear, step-by-step explanation.</p>
+            <p>Ask in any language, attach a photo or PDF of the question, then listen to the answer or turn it into a video.</p>
           </div>
         </header>
 
         <div class="ai-layout">
           <div class="stack">
             <form class="card stack" id="askForm" novalidate>
-              <div class="grid grid-2" style="gap:14px">
+              <div class="grid grid-3" style="gap:14px">
                 <div class="field">
                   <label for="subject">Subject</label>
                   <select class="select" id="subject"></select>
@@ -40,16 +40,33 @@
                     <option value="exam">Exam revision (concise)</option>
                   </select>
                 </div>
+                <div class="field">
+                  <label for="language">Explain in</label>
+                  <select class="select" id="language"></select>
+                  <input class="input" id="customLanguage" type="text" maxlength="40" placeholder="Type a language, e.g. Assamese" hidden aria-label="Custom language">
+                </div>
               </div>
+
               <div class="field">
                 <label for="question">Your question</label>
-                <textarea class="textarea" id="question" placeholder="e.g. Why does ice float on water?" maxlength="2000" required></textarea>
+                <textarea class="textarea" id="question" placeholder="e.g. Why does ice float on water?  (You can also paste a screenshot here.)" maxlength="2000"></textarea>
               </div>
               <div class="field">
                 <label for="answer">Answer you were given <span style="font-weight:400">(optional)</span></label>
-                <textarea class="textarea" id="answer" placeholder="Paste the textbook or teacher's answer and the tutor will break it down." maxlength="4000" style="min-height:90px"></textarea>
-                <div class="hint" id="formError" role="alert"></div>
+                <textarea class="textarea" id="answer" placeholder="Paste the textbook or teacher's answer and the tutor will break it down." maxlength="4000" style="min-height:80px"></textarea>
               </div>
+
+              <div class="field">
+                <span class="label-like">Files <span style="font-weight:400">(optional)</span></span>
+                <input id="fileInput" type="file" multiple accept="image/*,.pdf,application/pdf,.txt,.md,.csv,text/plain,text/markdown,text/csv" class="sr-only">
+                <label class="dropzone" id="dropzone" for="fileInput">
+                  <span class="dropzone-icon" aria-hidden="true">📎</span>
+                  <span><strong>Add a photo, PDF or text file</strong><br><span class="small muted">Drag &amp; drop, paste a screenshot, or tap to choose · up to 3 files, 3 MB each</span></span>
+                </label>
+                <ul class="attach-list" id="attachList" aria-label="Attached files"></ul>
+              </div>
+
+              <div class="hint" id="formError" role="alert"></div>
               <div class="row">
                 <button class="btn btn-lg" id="submitBtn" type="submit"><span aria-hidden="true">✨</span> Explain simply</button>
                 <button class="btn btn-lg btn-ghost" id="clearBtn" type="button">Clear</button>
@@ -58,18 +75,22 @@
               </div>
             </form>
 
-            <section class="card output" aria-live="polite" aria-labelledby="outputTitle">
+            <section class="card" aria-labelledby="threadTitle">
               <div class="card-title">
-                <h2 id="outputTitle">Explanation</h2>
-                <div class="row" id="outputActions" hidden>
-                  <button class="btn btn-ghost btn-sm" id="speakBtn" type="button">🔊 Listen</button>
-                  <button class="btn btn-ghost btn-sm" id="copyBtn" type="button">📋 Copy</button>
+                <h2 id="threadTitle">Explanation</h2>
+                <button class="btn btn-ghost btn-sm" id="newThread" type="button" hidden>＋ New question</button>
+              </div>
+              <div class="thread" id="thread" aria-live="polite">
+                <p class="output-placeholder">Your explanation will appear here. You can then ask follow-up questions, listen to it, or make a video.</p>
+              </div>
+              <form class="composer" id="followForm" hidden novalidate>
+                <div class="chips" id="suggestions" aria-label="Quick follow-ups"></div>
+                <div class="composer-row">
+                  <label for="followInput" class="sr-only">Ask a follow-up question</label>
+                  <input class="input" id="followInput" type="text" maxlength="1000" placeholder="Ask a follow-up… e.g. “I didn't understand step 2”" autocomplete="off">
+                  <button class="btn" type="submit" id="followBtn">Send</button>
                 </div>
-              </div>
-              <div id="notice"></div>
-              <div class="output-body" id="output">
-                <p class="output-placeholder">Your simplified explanation will appear here.</p>
-              </div>
+              </form>
             </section>
           </div>
 
@@ -87,6 +108,8 @@
 
   <script src="js/app.js"></script>
   <script src="js/lessons-data.js"></script>
+  <script src="js/speech.js"></script>
+  <script src="js/video.js"></script>
   <script src="js/ai.js"></script>
 </body>
 </html>
