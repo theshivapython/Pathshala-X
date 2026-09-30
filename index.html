@@ -1,112 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pathshala-X</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pathshala-X — your personal learning dashboard with lessons, quizzes, an AI tutor and study tools.">
+  <title>Dashboard · Pathshala-X</title>
+  <script>try{var t=JSON.parse(localStorage.getItem('px:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
 </head>
-<body>
-    <div class="sidebar">
-        <h2>Pathshala-X</h2>
-        <div class="nav-item active">Dashboard</div>
-        <div class="nav-item">Lessons</div>
-        <div class="nav-item">Q&A</div>
-        <div class="nav-item">Tools</div>
-      </div>
-    
-      <div class="main">
-        <h1>Learning Dashboard</h1>
-    
-        <div class="card">
-          <h3>Continue Your Learning</h3>
-          <div class="progress-bar">
-            <div class="progress"></div>
+<body data-page="dashboard">
+  <div class="app">
+    <main class="main" id="main">
+      <div class="container">
+        <header class="page-header">
+          <div>
+            <div class="eyebrow" id="today"></div>
+            <h1 id="greeting">Welcome back</h1>
+            <p>Pick up where you left off and keep your streak going.</p>
           </div>
-        </div>
-    
-        <div class="card">
-          <h3>Daily Goal</h3>
-          <p>16 minutes completed</p>
-          <div class="progress-bar">
-            <div class="progress" style="width: 80%;"></div>
+          <a class="btn btn-lg" href="ai.html"><span aria-hidden="true">💬</span> Ask the AI tutor</a>
+        </header>
+
+        <section class="grid grid-4 stats" aria-label="Your stats">
+          <div class="card stat">
+            <div class="stat-icon" aria-hidden="true">⏱️</div>
+            <div><div class="stat-value" id="statToday">0 min</div><div class="stat-label">Studied today</div></div>
           </div>
-        </div>
-    
-        <div class="subject-section" id="subjectSection">
-            <h2>Your Subjects</h2>
-            <div id="subjectsList" class="subject-list">
-              <button class="subject-card" onclick="goToAIPage">Math</button>
-              <button class="subject-card" herf="ai.html">Physics</button>
-              <button class="subject-card" onclick="goToAIPage">Chemistry</button>
-              <button class="subject-card" onclick="goToAIPage">Biology</button>
-              <button class="subject-card add-own-btn" id="addCustomSubject">+ Add Your Own</button>
+          <div class="card stat">
+            <div class="stat-icon" aria-hidden="true">🔥</div>
+            <div><div class="stat-value" id="statStreak">0 days</div><div class="stat-label">Current streak</div></div>
+          </div>
+          <div class="card stat">
+            <div class="stat-icon" aria-hidden="true">✅</div>
+            <div><div class="stat-value" id="statLessons">0 / 0</div><div class="stat-label">Lessons done</div></div>
+          </div>
+          <div class="card stat">
+            <div class="stat-icon" aria-hidden="true">💡</div>
+            <div><div class="stat-value" id="statQuestions">0</div><div class="stat-label">Questions asked</div></div>
+          </div>
+        </section>
+
+        <section class="grid grid-2" style="margin-top:18px">
+          <div class="card">
+            <div class="card-title"><h2>Continue your learning</h2><span class="badge badge-primary" id="overallPct">0%</span></div>
+            <div id="continueBox"></div>
+            <div class="progress-track" style="margin-top:16px"><div class="progress-fill" id="overallBar"></div></div>
+            <p class="small muted" style="margin-top:8px" id="overallText"></p>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <h2>Daily goal</h2>
+              <button class="btn btn-ghost btn-sm" id="editGoal" type="button">Edit goal</button>
+            </div>
+            <div class="row" style="gap:22px;flex-wrap:nowrap">
+              <div class="ring" id="goalRing">
+                <div class="ring-label"><strong id="goalPct">0%</strong><span class="small muted">of goal</span></div>
+              </div>
+              <div>
+                <p><strong id="goalText">0 of 20 minutes</strong></p>
+                <p class="muted small" id="goalHint" style="margin-top:4px"></p>
+                <p class="muted small" style="margin-top:10px">Time counts automatically while Pathshala-X is open in your browser.</p>
+              </div>
             </div>
           </div>
-         
-    
+        </section>
+
+        <section class="card" style="margin-top:18px" aria-labelledby="subjectsTitle">
+          <div class="card-title">
+            <h2 id="subjectsTitle">Your subjects</h2>
+            <a class="small" href="lessons.html">Browse all lessons →</a>
+          </div>
+          <div class="subject-grid" id="subjectsList"></div>
+        </section>
+
+        <section class="card" style="margin-top:18px" aria-labelledby="activityTitle">
+          <div class="card-title"><h2 id="activityTitle">Recent activity</h2></div>
+          <ul class="list" id="activityList"></ul>
+        </section>
       </div>
-      <script>
-            const subjectsList = document.getElementById("subjectsList");
-    const addCustomBtn = document.getElementById("addCustomSubject");
+    </main>
+  </div>
 
-    const predefinedSubjects = ["Math", "Physics", "Chemistry", "Biology"];
-    const storedSubjects = JSON.parse(localStorage.getItem("subjects")) || predefinedSubjects;
-
-    function saveSubjects(subjects) {
-      localStorage.setItem("subjects", JSON.stringify(subjects));
-    }
-
-    function createSubjectCard(subjectName) {
-      const subjectBtn = document.createElement("button");
-      subjectBtn.className = "subject-card";
-      subjectBtn.textContent = subjectName;
-
-      // Add link
-      function goToAIPage() {
-        window.location.href = 'ai.html';
-      }
-      subjectBtn.onclick = () => {
-        const page = subjectName.toLowerCase().replace(/\s+/g, '') + "ai.html";
-        window.location.href = 'ai.html';
-      };
-
-      // Add remove button (only for custom subjects)
-      if (!predefinedSubjects.includes(subjectName)) {
-        const removeBtn = document.createElement("span");
-        removeBtn.textContent = "🗑️";
-        removeBtn.className = "remove-btn";
-        removeBtn.onclick = (e) => {
-          e.stopPropagation();
-          subjectsList.removeChild(subjectBtn);
-          const updatedSubjects = JSON.parse(localStorage.getItem("subjects")) || [];
-          const newSubjects = updatedSubjects.filter(sub => sub !== subjectName);
-          saveSubjects(newSubjects);
-        };
-        subjectBtn.appendChild(removeBtn);
-      }
-
-      subjectsList.insertBefore(subjectBtn, addCustomBtn);
-    }
-
-    // Load stored subjects
-    storedSubjects.forEach(createSubjectCard);
-
-    // Add custom subject
-    addCustomBtn.addEventListener("click", () => {
-      const subjectName = prompt("Enter the name of your new subject:");
-      if (subjectName && subjectName.trim() !== "") {
-        const formatted = subjectName.trim();
-        const currentSubjects = JSON.parse(localStorage.getItem("subjects")) || [];
-        if (!currentSubjects.includes(formatted)) {
-          createSubjectCard(formatted);
-          saveSubjects([...currentSubjects, formatted]);
-        } else {
-          alert("Subject already exists!");
-        }
-      }
-    });
-      </script>
+  <script src="js/app.js"></script>
+  <script src="js/lessons-data.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

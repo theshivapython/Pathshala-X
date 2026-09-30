@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Short, clear lessons with quick quizzes in Math, Physics, Chemistry and Biology.">
+  <title>Lessons · Pathshala-X</title>
+  <script>try{var t=JSON.parse(localStorage.getItem('px:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
+</head>
+<body data-page="lessons">
+  <div class="app">
+    <main class="main" id="main">
+      <div class="container">
+        <section id="libraryView">
+          <header class="page-header">
+            <div>
+              <div class="eyebrow">Lessons</div>
+              <h1 id="libraryTitle">Lesson library</h1>
+              <p id="librarySubtitle">Bite-sized lessons with a quick quiz at the end.</p>
+            </div>
+            <div class="field" style="min-width:240px">
+              <label for="search" class="sr-only">Search lessons</label>
+              <input class="input" id="search" type="search" placeholder="🔍 Search lessons…" autocomplete="off">
+            </div>
+          </header>
+          <div class="chips" id="subjectFilter" role="toolbar" aria-label="Filter by subject"></div>
+          <div class="lesson-grid" id="lessonGrid" style="margin-top:20px"></div>
+        </section>
+
+        <article id="readerView" class="reader" hidden></article>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/lessons-data.js"></script>
+  <script src="js/lessons.js"></script>
+</body>
+</html>

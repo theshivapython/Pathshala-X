@@ -2,38 +2,91 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Pathshala-X | AI Answer Explainer</title>
-  <link rel="stylesheet" href="ai.css">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ask a question, add an answer, and get a simple step-by-step explanation from the Pathshala-X AI tutor.">
+  <title>Ask AI · Pathshala-X</title>
+  <script>try{var t=JSON.parse(localStorage.getItem('px:theme'));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
 </head>
-<body>
-    <div class="top-bar">
-        <button id="toggle-mode">🌙 Dark Mode</button>
-    </div>
+<body data-page="ai">
+  <div class="app">
+    <main class="main" id="main">
+      <div class="container">
+        <header class="page-header">
+          <div>
+            <div class="eyebrow">AI tutor</div>
+            <h1>Explain it simply</h1>
+            <p>Type a question — and optionally the answer you were given — and get a clear, step-by-step explanation.</p>
+          </div>
+        </header>
 
-      
-      
-  <div class="container">
-    <h1>Pathshala-X</h1>
-    <p class="subheading">Enter a question and its answer. Get a simplified explanation!</p>
+        <div class="ai-layout">
+          <div class="stack">
+            <form class="card stack" id="askForm" novalidate>
+              <div class="grid grid-2" style="gap:14px">
+                <div class="field">
+                  <label for="subject">Subject</label>
+                  <select class="select" id="subject"></select>
+                </div>
+                <div class="field">
+                  <label for="level">Explain it for</label>
+                  <select class="select" id="level">
+                    <option value="simple">A beginner (very simple)</option>
+                    <option value="student" selected>A school student</option>
+                    <option value="exam">Exam revision (concise)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="question">Your question</label>
+                <textarea class="textarea" id="question" placeholder="e.g. Why does ice float on water?" maxlength="2000" required></textarea>
+              </div>
+              <div class="field">
+                <label for="answer">Answer you were given <span style="font-weight:400">(optional)</span></label>
+                <textarea class="textarea" id="answer" placeholder="Paste the textbook or teacher's answer and the tutor will break it down." maxlength="4000" style="min-height:90px"></textarea>
+                <div class="hint" id="formError" role="alert"></div>
+              </div>
+              <div class="row">
+                <button class="btn btn-lg" id="submitBtn" type="submit"><span aria-hidden="true">✨</span> Explain simply</button>
+                <button class="btn btn-lg btn-ghost" id="clearBtn" type="button">Clear</button>
+                <span class="spacer"></span>
+                <span class="hint">Ctrl + Enter to send</span>
+              </div>
+            </form>
 
-    <textarea id="question" placeholder="Enter your question..."></textarea>
-    <textarea id="answer" placeholder="Enter your answer..."></textarea>
+            <section class="card output" aria-live="polite" aria-labelledby="outputTitle">
+              <div class="card-title">
+                <h2 id="outputTitle">Explanation</h2>
+                <div class="row" id="outputActions" hidden>
+                  <button class="btn btn-ghost btn-sm" id="speakBtn" type="button">🔊 Listen</button>
+                  <button class="btn btn-ghost btn-sm" id="copyBtn" type="button">📋 Copy</button>
+                </div>
+              </div>
+              <div id="notice"></div>
+              <div class="output-body" id="output">
+                <p class="output-placeholder">Your simplified explanation will appear here.</p>
+              </div>
+            </section>
+          </div>
 
-    <button onclick="generateExplanation()">Explain Answer Simply</button>
-
-    <div id="output-box">
-      <h3>Simplified Explanation:</h3>
-      <p id="explanation-text">Your simplified explanation will appear here...</p>
-    </div>
-    <div id="typing" style="display: none;" class="typing-animation">
-      <img src="ai-avatar.gif" alt="AI Typing..." width="50" height="50" />
-      <span>AI is thinking...</span>
-    </div>
-    
+          <aside class="card" aria-labelledby="historyTitle">
+            <div class="card-title">
+              <h2 id="historyTitle">Recent questions</h2>
+              <button class="btn btn-ghost btn-sm" id="clearHistory" type="button" hidden>Clear</button>
+            </div>
+            <div id="history"></div>
+          </aside>
+        </div>
+      </div>
+    </main>
   </div>
 
-  <script src="ai.js"></script>
-  
+  <script src="js/app.js"></script>
+  <script src="js/lessons-data.js"></script>
+  <script src="js/ai.js"></script>
 </body>
 </html>
