@@ -4,12 +4,12 @@
 
   const PREFIX = 'px:';
 
-  // ---------- Storage ----------
-  const store = {
+  // ---------- Raw (device-wide) storage ----------
+  const raw = {
     get(key, fallback) {
       try {
-        const raw = localStorage.getItem(PREFIX + key);
-        return raw === null ? fallback : JSON.parse(raw);
+        const value = localStorage.getItem(PREFIX + key);
+        return value === null ? fallback : JSON.parse(value);
       } catch (e) {
         return fallback;
       }
@@ -25,6 +25,274 @@
       try {
         localStorage.removeItem(PREFIX + key);
       } catch (e) { /* ignore */ }
+    },
+  };
+
+  // ---------- Demo accounts ----------
+  // TEMPORARY: accounts live in this browser's localStorage only. This is a demo
+  // until a real backend + database replaces it — do not treat it as secure.
+  const SESSION_KEY = PREFIX + 'session';
+  const DEMO_EMAIL = 'demo@pathshala.app';
+  const DEMO_PASSWORD = 'demo1234';
+  // Per-user data keys. Before accounts existed these were stored un-namespaced;
+  // the first account created on a device adopts that data.
+  const USER_KEYS = ['completed', 'lastLesson', 'activity', 'goalMinutes', 'customSubjects', 'history', 'notes', 'focusSessions'];
+
+  function readSession() {
+    try {
+      return JSON.parse(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeSession(session, remember) {
+    try {
+      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      if (session) (remember ? localStorage : sessionStorage).setItem(SESSION_KEY, JSON.stringify(session));
+    } catch (e) { /* ignore */ }
+  }
+
+  const getAccounts = () => raw.get('accounts', {});
+  const saveAccounts = (accounts) => raw.set('accounts', accounts);
+
+  let currentUser = (() => {
+    const session = readSession();
+    const account = session && getAccounts()[session.userId];
+    return account || null;
+  })();
+
+  function publicUser(account) {
+    if (!account) return null;
+    const { salt, hash, ...rest } = account;
+    return { ...rest, isDemo: account.email === DEMO_EMAIL };
+  }
+
+  function toHex(buffer) {
+    return [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function randomId(bytes = 16) {
+    const arr = new Uint8Array(bytes);
+    (window.crypto || {}).getRandomValues ? crypto.getRandomValues(arr) : arr.forEach((_, i) => { arr[i] = Math.random() * 256; });
+    return toHex(arr);
+  }
+
+  async function hashPassword(password, salt) {
+    if (window.crypto && crypto.subtle) {
+      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+      const bits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 100000, hash: 'SHA-256' }, key, 256
+      );
+      return `pbkdf2:${toHex(bits)}`;
+    }
+    // Insecure contexts (plain http on a LAN IP) have no WebCrypto — fall back to a simple hash.
+    let h = 2166136261;
+    const input = `${salt}:${password}`;
+    for (let round = 0; round < 1000; round++) {
+      for (let i = 0; i < input.length; i++) h = Math.imul(h ^ input.charCodeAt(i), 16777619) >>> 0;
+    }
+    return `fnv:${h.toString(16)}`;
+  }
+
+  function deviceLabel() {
+    const ua = navigator.userAgent;
+    const browser = /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Chrome\//.test(ua) ? 'Chrome'
+      : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+    const os = /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows'
+      : /Mac OS/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : 'Unknown OS';
+    return `${browser} on ${os}`;
+  }
+
+  function userKey(userId, key) {
+    return `u:${userId}:${key}`;
+  }
+
+  function adoptLegacyData(userId) {
+    if (raw.get('legacyAdopted')) return;
+    USER_KEYS.forEach((key) => {
+      const value = raw.get(key);
+      if (value !== undefined) {
+        raw.set(userKey(userId, key), value);
+        raw.remove(key);
+      }
+    });
+    raw.set('legacyAdopted', true);
+  }
+
+  function startSession(account, remember) {
+    const accounts = getAccounts();
+    const stored = accounts[account.id];
+    stored.previousLoginAt = stored.lastLoginAt || null;
+    stored.lastLoginAt = Date.now();
+    stored.logins = [{ ts: stored.lastLoginAt, device: deviceLabel() }, ...(stored.logins || [])].slice(0, 15);
+    saveAccounts(accounts);
+    writeSession({ userId: account.id, since: Date.now() }, remember);
+    currentUser = stored;
+    return publicUser(stored);
+  }
+
+  function findByEmail(email) {
+    const target = String(email || '').trim().toLowerCase();
+    return Object.values(getAccounts()).find((a) => a.email === target) || null;
+  }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  async function signUp({ name, email, password, remember = true }) {
+    const cleanName = String(name || '').trim().replace(/\s+/g, ' ');
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    if (!cleanName || cleanName.length > 40) return { ok: false, field: 'name', error: 'Please enter your name (up to 40 characters).' };
+    if (!EMAIL_RE.test(cleanEmail)) return { ok: false, field: 'email', error: 'Please enter a valid email address.' };
+    if (String(password || '').length < 6) return { ok: false, field: 'password', error: 'Password must be at least 6 characters.' };
+    if (findByEmail(cleanEmail)) return { ok: false, field: 'email', error: 'An account with this email already exists. Sign in instead.' };
+
+    const id = randomId(8);
+    const salt = randomId(16);
+    const accounts = getAccounts();
+    accounts[id] = {
+      id, name: cleanName, email: cleanEmail, salt,
+      hash: await hashPassword(password, salt),
+      createdAt: Date.now(), lastLoginAt: null, previousLoginAt: null, logins: [],
+    };
+    saveAccounts(accounts);
+    if (cleanEmail !== DEMO_EMAIL) adoptLegacyData(id);
+    return { ok: true, user: startSession(accounts[id], remember) };
+  }
+
+  async function signIn({ email, password, remember = true }) {
+    const account = findByEmail(email);
+    // Same message for unknown email and wrong password so accounts can't be probed.
+    const fail = { ok: false, field: 'password', error: 'Incorrect email or password.' };
+    if (!account) return fail;
+    if ((await hashPassword(String(password || ''), account.salt)) !== account.hash) return fail;
+    return { ok: true, user: startSession(account, remember) };
+  }
+
+  function daysAgo(n, hour = 17) {
+    const d = new Date();
+    d.setDate(d.getDate() - n);
+    d.setHours(hour, 0, 0, 0);
+    return d;
+  }
+
+  function seedDemoData(userId) {
+    const set = (key, value) => raw.set(userKey(userId, key), value);
+    const activity = {};
+    [[1, 24], [2, 31], [3, 18], [4, 0], [5, 27], [6, 12], [8, 22], [9, 15]].forEach(([n, min]) => {
+      if (min) activity[dateKey(daysAgo(n))] = min * 60;
+    });
+    set('activity', activity);
+    set('completed', {
+      'math-pythagoras': daysAgo(5).getTime(),
+      'physics-newton-laws': daysAgo(3).getTime(),
+      'bio-cell': daysAgo(2).getTime(),
+      'math-pi-circles': daysAgo(1).getTime(),
+    });
+    set('lastLesson', 'math-linear-equations');
+    set('focusSessions', { [dateKey(daysAgo(2))]: 2, [dateKey(daysAgo(1))]: 1 });
+    set('history', [
+      {
+        id: 'demo-2', ts: daysAgo(1, 18).getTime(), subject: 'Chemistry', level: 'student', source: 'ai',
+        question: 'Why does ice float on water?', answer: '',
+        explanation: '**Ice is less dense than liquid water.**\n\n- When water freezes, its molecules line up in an open, hexagonal pattern held by hydrogen bonds.\n- That pattern takes up more space, so the same mass fills a bigger volume.\n- Anything less dense than water floats on it.\n\n**In one line:** Freezing spreads water molecules apart, so ice is lighter for its size and floats.',
+      },
+      {
+        id: 'demo-1', ts: daysAgo(3, 16).getTime(), subject: 'Math', level: 'simple', source: 'ai',
+        question: 'What does the slope of a line mean?', answer: 'Slope is rise over run.',
+        explanation: '**Slope tells you how steep a line is.**\n\n1. Pick two points on the line.\n2. **Rise** = how far up you go. **Run** = how far across you go.\n3. Slope = rise ÷ run.\n\nA slope of 2 means: every 1 step right, the line goes 2 steps up.\n\n**In one line:** Slope is how much a line goes up for each step across.',
+      },
+    ]);
+    set('notes', 'Formulas to revise:\n- a² + b² = c²\n- Area of circle = πr²\n- F = ma');
+  }
+
+  async function signInDemo() {
+    let account = findByEmail(DEMO_EMAIL);
+    if (!account) {
+      const created = await signUp({ name: 'Demo Student', email: DEMO_EMAIL, password: DEMO_PASSWORD, remember: false });
+      if (!created.ok) return created;
+      seedDemoData(created.user.id);
+      return created;
+    }
+    return signIn({ email: DEMO_EMAIL, password: DEMO_PASSWORD, remember: false });
+  }
+
+  function signOut() {
+    writeSession(null);
+    currentUser = null;
+    location.href = 'login.html';
+  }
+
+  function updateName(name) {
+    const clean = String(name || '').trim().replace(/\s+/g, ' ');
+    if (!clean || clean.length > 40) return { ok: false, error: 'Please enter a name (up to 40 characters).' };
+    const accounts = getAccounts();
+    accounts[currentUser.id].name = clean;
+    saveAccounts(accounts);
+    currentUser = accounts[currentUser.id];
+    return { ok: true };
+  }
+
+  async function changePassword(current, next) {
+    const accounts = getAccounts();
+    const account = accounts[currentUser.id];
+    if ((await hashPassword(String(current || ''), account.salt)) !== account.hash) {
+      return { ok: false, error: 'Your current password is incorrect.' };
+    }
+    if (String(next || '').length < 6) return { ok: false, error: 'New password must be at least 6 characters.' };
+    account.salt = randomId(16);
+    account.hash = await hashPassword(next, account.salt);
+    saveAccounts(accounts);
+    currentUser = account;
+    return { ok: true };
+  }
+
+  function userDataKeys(userId) {
+    const prefix = `${PREFIX}u:${userId}:`;
+    const keys = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k.startsWith(prefix)) keys.push(k);
+      }
+    } catch (e) { /* ignore */ }
+    return keys;
+  }
+
+  function exportUserData() {
+    const prefix = `${PREFIX}u:${currentUser.id}:`;
+    const data = {};
+    userDataKeys(currentUser.id).forEach((k) => {
+      try { data[k.slice(prefix.length)] = JSON.parse(localStorage.getItem(k)); } catch (e) { /* skip */ }
+    });
+    return { exportedAt: new Date().toISOString(), account: publicUser(currentUser), data };
+  }
+
+  function deleteAccount() {
+    const id = currentUser.id;
+    userDataKeys(id).forEach((k) => localStorage.removeItem(k));
+    const accounts = getAccounts();
+    delete accounts[id];
+    saveAccounts(accounts);
+    signOut();
+  }
+
+  function safeNext(value) {
+    // Only allow local page names, never external URLs.
+    return value && /^[a-z]+\.html(\?[^#]*)?$/i.test(value) && !/^login\.html/i.test(value) ? value : 'index.html';
+  }
+
+  // ---------- Per-user storage ----------
+  const store = {
+    get(key, fallback) {
+      return currentUser ? raw.get(userKey(currentUser.id, key), fallback) : fallback;
+    },
+    set(key, value) {
+      if (currentUser) raw.set(userKey(currentUser.id, key), value);
+    },
+    remove(key) {
+      if (currentUser) raw.remove(userKey(currentUser.id, key));
     },
   };
 
@@ -68,9 +336,9 @@
   (function migrateLegacySubjects() {
     try {
       const legacy = JSON.parse(localStorage.getItem('subjects'));
-      if (Array.isArray(legacy) && store.get('customSubjects') === undefined) {
+      if (Array.isArray(legacy) && raw.get('customSubjects') === undefined) {
         const defaults = DEFAULT_SUBJECTS.map((s) => s.name);
-        store.set('customSubjects', legacy.filter((s) => typeof s === 'string' && !defaults.includes(s)));
+        raw.set('customSubjects', legacy.filter((s) => typeof s === 'string' && !defaults.includes(s)));
       }
       localStorage.removeItem('subjects');
     } catch (e) { /* ignore */ }
@@ -173,7 +441,7 @@
 
   function setTheme(theme) {
     document.documentElement.dataset.theme = theme;
-    store.set('theme', theme);
+    raw.set('theme', theme);
     renderThemeButton();
   }
 
@@ -191,6 +459,7 @@
     { id: 'lessons', href: 'lessons.html', icon: '📚', label: 'Lessons' },
     { id: 'ai', href: 'ai.html', icon: '💬', label: 'Ask AI' },
     { id: 'tools', href: 'tools.html', icon: '🧰', label: 'Tools' },
+    { id: 'account', href: 'account.html', icon: '👤', label: 'My account' },
   ];
 
   const BRAND = '<span class="brand-mark" aria-hidden="true">P</span><span>Pathshala<span>-X</span></span>';
@@ -218,6 +487,16 @@
           <div class="progress-track"><div class="progress-fill" id="miniGoalBar"></div></div>
         </div>
         <button class="theme-toggle" id="themeToggle" type="button"></button>
+        <div class="user-card">
+          <a class="user-link" href="account.html" title="My account">
+            <span class="avatar" aria-hidden="true">${esc(initials(currentUser.name))}</span>
+            <span class="user-meta">
+              <strong class="truncate">${esc(currentUser.name)}</strong>
+              <span class="truncate">${esc(currentUser.email)}</span>
+            </span>
+          </a>
+          <button class="signout-btn" id="signOutBtn" type="button" title="Sign out" aria-label="Sign out">⎋</button>
+        </div>
       </div>`;
 
     const topbar = document.createElement('header');
@@ -244,12 +523,17 @@
       if (e.key === 'Escape') setOpen(false);
     });
 
+    document.getElementById('signOutBtn').addEventListener('click', signOut);
     document.getElementById('themeToggle').addEventListener('click', () => {
       setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
     });
     renderThemeButton();
     renderMiniGoal();
     document.addEventListener('px:activity', renderMiniGoal);
+  }
+
+  function initials(name) {
+    return String(name || '?').split(' ').filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('') || '?';
   }
 
   function renderMiniGoal() {
@@ -353,13 +637,53 @@
   }
 
   // ---------- Boot ----------
+  const isPublicPage = () => document.body && document.body.hasAttribute('data-public');
+
   document.addEventListener('DOMContentLoaded', () => {
+    if (isPublicPage()) return;
+    if (!currentUser) {
+      // Session missing or points at a deleted account (boot.js catches the common case earlier).
+      writeSession(null);
+      const here = (location.pathname.split('/').pop() || 'index.html') + location.search;
+      location.replace(`login.html?next=${encodeURIComponent(here)}`);
+      return;
+    }
     renderLayout();
     startTracking();
+    try {
+      const welcome = sessionStorage.getItem('px:welcome');
+      if (welcome) {
+        sessionStorage.removeItem('px:welcome');
+        toast(welcome);
+      }
+    } catch (e) { /* ignore */ }
+  });
+
+  // Keep tabs in sync: signing out (or in as someone else) in one tab applies to all.
+  window.addEventListener('storage', (e) => {
+    if (e.key !== SESSION_KEY || isPublicPage()) return;
+    const session = readSession();
+    if (!session || !currentUser || session.userId !== currentUser.id) location.reload();
   });
 
   window.PX = {
     store,
+    raw,
+    auth: {
+      user: () => publicUser(currentUser),
+      signUp,
+      signIn,
+      signInDemo,
+      signOut,
+      updateName,
+      changePassword,
+      exportUserData,
+      deleteAccount,
+      safeNext,
+      initials,
+      DEMO_EMAIL,
+      DEMO_PASSWORD,
+    },
     esc,
     dateKey,
     timeAgo,

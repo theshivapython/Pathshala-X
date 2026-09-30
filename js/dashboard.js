@@ -1,5 +1,6 @@
 /* Dashboard page */
 document.addEventListener('DOMContentLoaded', () => {
+  if (!PX.auth.user()) return; // app.js redirects to the login page
   const { esc } = PX;
   const lessons = window.PX_LESSONS || [];
 
@@ -7,7 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const now = new Date();
     const hour = now.getHours();
     const part = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    document.getElementById('greeting').textContent = `${part} 👋`;
+    const user = PX.auth.user();
+    document.getElementById('greeting').textContent = `${part}, ${user.name.split(' ')[0]} 👋`;
+    if (user.previousLoginAt) {
+      document.getElementById('lastVisit').textContent = `Last visit ${PX.timeAgo(user.previousLoginAt)}. Pick up where you left off and keep your streak going.`;
+    }
     document.getElementById('today').textContent = now.toLocaleDateString(undefined, {
       weekday: 'long', month: 'long', day: 'numeric',
     });

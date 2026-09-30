@@ -97,6 +97,7 @@ function formatNumber(n) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (!PX.auth.user()) return; // app.js redirects to the login page
   // ---------------------------------------------------------------- Calculator
   const exprEl = document.getElementById('calcExpr');
   const resultEl = document.getElementById('calcResult');

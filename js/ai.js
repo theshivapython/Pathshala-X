@@ -1,5 +1,6 @@
 /* Ask AI page: calls /api/explanation, with a built-in offline fallback. */
 document.addEventListener('DOMContentLoaded', () => {
+  if (!PX.auth.user()) return; // app.js redirects to the login page
   const { esc } = PX;
   const lessons = window.PX_LESSONS || [];
   const HISTORY_LIMIT = 30;

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign in to Pathshala-X to pick up your lessons, questions and study progress.">
+  <title>Sign in · Pathshala-X</title>
+  <script src="js/boot.js" data-public></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
+</head>
+<body data-public>
+  <div class="auth">
+    <section class="auth-hero">
+      <a class="brand" href="login.html" style="padding:0"><span class="brand-mark" aria-hidden="true">P</span><span>Pathshala<span>-X</span></span></a>
+      <div>
+        <h1>Learn a little every day.</h1>
+        <p>Your lessons, quiz results, AI tutor questions and study streak are saved to your account.</p>
+        <ul class="feature-list">
+          <li><span aria-hidden="true">📚</span><span><strong style="color:#fff">Short lessons with quizzes</strong><br>Math, Physics, Chemistry, Biology and your own subjects.</span></li>
+          <li><span aria-hidden="true">💬</span><span><strong style="color:#fff">An AI tutor that explains simply</strong><br>Every question you ask is kept in your history.</span></li>
+          <li><span aria-hidden="true">🔥</span><span><strong style="color:#fff">Goals and streaks</strong><br>See how much you studied each day.</span></li>
+        </ul>
+      </div>
+      <p class="small hero-foot">© Pathshala-X</p>
+    </section>
+
+    <main class="auth-panel">
+      <div class="auth-card">
+        <h2 id="authTitle">Welcome back</h2>
+        <p class="muted" id="authSubtitle">Sign in to continue learning.</p>
+
+        <div class="tabs" role="tablist" aria-label="Sign in or create account">
+          <button type="button" role="tab" id="tabSignin" aria-selected="true" aria-controls="authForm">Sign in</button>
+          <button type="button" role="tab" id="tabSignup" aria-selected="false" aria-controls="authForm">Create account</button>
+        </div>
+
+        <div id="savedAccounts"></div>
+
+        <form class="stack" id="authForm" novalidate style="gap:14px">
+          <div class="field" id="nameField" hidden>
+            <label for="name">Your name</label>
+            <input class="input" id="name" name="name" autocomplete="name" maxlength="40" placeholder="e.g. Priya Sharma">
+            <div class="field-error" id="nameError"></div>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input class="input" id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com">
+            <div class="field-error" id="emailError"></div>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="password-wrap">
+              <input class="input" id="password" name="password" type="password" autocomplete="current-password" placeholder="At least 6 characters">
+              <button class="password-toggle" type="button" id="togglePassword" aria-label="Show password">Show</button>
+            </div>
+            <div class="field-error" id="passwordError"></div>
+          </div>
+          <label class="check"><input type="checkbox" id="remember" checked> Keep me signed in on this device</label>
+          <button class="btn btn-lg" id="submitBtn" type="submit">Sign in</button>
+        </form>
+
+        <div class="divider">or</div>
+        <button class="btn btn-lg btn-ghost" id="demoBtn" type="button" style="width:100%">🎓 Try the demo account</button>
+
+        <div class="demo-note" style="margin-top:20px">
+          <span aria-hidden="true">ℹ️</span>
+          <span><strong>Demo sign-in.</strong> Accounts and progress are stored only in this browser for now, so clearing site data removes them. A real database is coming in the next version. Please don't reuse an important password here.</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

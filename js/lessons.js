@@ -1,5 +1,6 @@
 /* Lessons page: library (filter + search) and lesson reader with quiz. */
 document.addEventListener('DOMContentLoaded', () => {
+  if (!PX.auth.user()) return; // app.js redirects to the login page
   const { esc } = PX;
   const lessons = window.PX_LESSONS || [];
 
